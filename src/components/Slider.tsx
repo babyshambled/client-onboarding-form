@@ -18,10 +18,10 @@ export default function Slider({
   const percentage = ((value - min) / (max - min)) * 100;
 
   return (
-    <div className="py-2">
-      <div className="flex items-start justify-between mb-2 gap-3">
-        <span className="text-sm text-brand-white leading-snug flex-1">{label}</span>
-        <span className="text-lg font-bold text-brand-yellow tabular-nums min-w-[2ch] text-right">
+    <div className="py-3">
+      <div className="flex items-start justify-between mb-3 gap-3">
+        <span className="text-base text-brand-white leading-relaxed flex-1">{label}</span>
+        <span className="text-2xl font-bold text-brand-yellow tabular-nums min-w-[2ch] text-right">
           {value}
         </span>
       </div>
@@ -39,9 +39,9 @@ export default function Slider({
           }}
         />
       </div>
-      <div className="flex justify-between mt-1">
-        <span className="text-xs text-brand-muted/60">Struggling</span>
-        <span className="text-xs text-brand-muted/60">Confident</span>
+      <div className="flex justify-between mt-1.5">
+        <span className="text-sm text-brand-muted/70">Struggling</span>
+        <span className="text-sm text-brand-muted/70">Confident</span>
       </div>
     </div>
   );

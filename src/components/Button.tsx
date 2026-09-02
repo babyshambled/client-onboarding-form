@@ -18,7 +18,7 @@ export default function Button({
   loading = false,
 }: ButtonProps) {
   const base =
-    "px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer";
+    "px-7 py-3.5 rounded-lg font-semibold text-base transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer";
 
   const variants = {
     primary:

@@ -37,6 +37,16 @@ export interface Submission {
   // Section 5: Goals
   ninety_day_success: string;
   anything_else: string;
+
+  // Scoping + handover (all optional)
+  their_word?: string;
+  can_name_clients?: string;
+  rough_client_count?: string;
+  pre_conversation_ask?: string;
+  handover_asset?: string;
+
+  // Fields the user explicitly marked "I've shared everything I can"
+  acknowledged_short_answers?: string[];
 }
 
 export type SubmissionInput = Omit<Submission, "id" | "created_at">;

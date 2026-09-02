@@ -15,14 +15,14 @@ export default function FormStep({ title, subtitle, children, direction, stepKey
       className={direction === "right" ? "slide-enter-right" : "slide-enter-left"}
     >
       <div className="mb-8">
-        <h2 className="text-2xl sm:text-3xl font-bold text-brand-white mb-2">
+        <h2 className="text-3xl sm:text-4xl font-bold text-brand-white mb-3 leading-tight">
           {title}
         </h2>
         {subtitle && (
-          <p className="text-brand-muted text-sm sm:text-base">{subtitle}</p>
+          <p className="text-brand-muted text-base sm:text-lg leading-relaxed">{subtitle}</p>
         )}
       </div>
-      <div className="space-y-6">
+      <div className="space-y-7">
         {children}
       </div>
     </div>

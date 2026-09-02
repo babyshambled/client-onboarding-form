@@ -9,6 +9,12 @@ const BIGGEST_COST_OPTIONS = [
   "Something else",
 ] as const;
 
+const CAN_NAME_OPTIONS = [
+  "Yes",
+  "Only anonymised",
+  "No - my work doesn't allow it",
+] as const;
+
 export const submissionSchema = z
   .object({
     // Contact
@@ -69,7 +75,17 @@ export const submissionSchema = z
       .string()
       .min(1, "90-day success is required")
       .max(5000),
-    anything_else: z.string().min(1, "Anything else is required").max(5000),
+    anything_else: z.string().max(5000).optional().default(""),
+
+    // Scoping + handover. All optional by design: none of these may block a
+    // submit, and the rough count especially must never be required.
+    their_word: z.string().max(200).optional(),
+    can_name_clients: z.enum(CAN_NAME_OPTIONS).optional(),
+    rough_client_count: z.string().max(200).optional(),
+    pre_conversation_ask: z.string().max(5000).optional(),
+    handover_asset: z.string().max(5000).optional(),
+
+    acknowledged_short_answers: z.array(z.string()).optional().default([]),
   })
   .refine(
     (data) => {

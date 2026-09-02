@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import Button from "@/components/Button";
-
-const ADMIN_PASSWORD = "darren2024";
 
 const SLIDER_LABELS = [
   "I know exactly who my ideal client is",
@@ -49,41 +47,33 @@ interface Submission {
 
 export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchSubmissions = useCallback(async () => {
+  // The password is never held in this file. It is whatever the operator types,
+  // and only the server (ADMIN_PASSWORD env var) decides whether it is right.
+  const handleLogin = async () => {
+    setPasswordError("");
     setLoading(true);
     try {
       const res = await fetch("/api/submissions", {
-        headers: { "x-admin-password": ADMIN_PASSWORD },
+        headers: { "x-admin-password": password },
       });
       if (res.ok) {
         const data = await res.json();
         setSubmissions(data.submissions || []);
+        setAuthenticated(true);
+      } else {
+        setPasswordError("Incorrect username or password");
       }
     } catch {
-      // ignore
+      setPasswordError("Could not reach the server. Please try again.");
     }
     setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    if (authenticated) {
-      fetchSubmissions();
-    }
-  }, [authenticated, fetchSubmissions]);
-
-  const handleLogin = () => {
-    if (password === ADMIN_PASSWORD) {
-      setAuthenticated(true);
-      setPasswordError("");
-    } else {
-      setPasswordError("Incorrect password");
-    }
   };
 
   const getRatingsArray = (sub: Submission): number[] => [
@@ -346,26 +336,35 @@ export default function AdminPage() {
           <h1 className="text-2xl font-bold text-brand-white mb-6 text-center">
             Admin Access
           </h1>
-          <div className="space-y-4">
-            <div>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setPasswordError("");
-                }}
-                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                placeholder="Enter password"
-                className="w-full px-4 py-3 bg-brand-black border border-brand-green/40 rounded-lg text-brand-white placeholder:text-brand-muted/50 focus:border-brand-yellow"
-              />
-              {passwordError && (
-                <p className="mt-1 text-xs text-red-400">{passwordError}</p>
-              )}
-            </div>
-            <Button onClick={handleLogin}>
-              Access Dashboard
-            </Button>
+          <div className="space-y-3">
+            <input
+              type="email"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setPasswordError("");
+              }}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              placeholder="Email"
+              autoComplete="username"
+              className="w-full px-4 py-3 bg-brand-black border border-brand-green/40 rounded-lg text-brand-white placeholder:text-brand-muted/50 focus:border-brand-yellow"
+            />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError("");
+              }}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              placeholder="Password"
+              autoComplete="current-password"
+              className="w-full px-4 py-3 bg-brand-black border border-brand-green/40 rounded-lg text-brand-white placeholder:text-brand-muted/50 focus:border-brand-yellow"
+            />
+            {passwordError && (
+              <p className="text-xs text-red-400">{passwordError}</p>
+            )}
+            <Button onClick={handleLogin}>Access Dashboard</Button>
           </div>
         </div>
       </div>

@@ -29,14 +29,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send email notification with PDF in background
-    sendSubmissionEmail({
-      ...result.data,
-      id: submission.id,
-      created_at: submission.created_at,
-    }).catch((err) =>
-      console.error("Failed to send email notification:", err)
-    );
+    try {
+      await sendSubmissionEmail({
+        ...result.data,
+        id: submission.id,
+        created_at: submission.created_at,
+      });
+    } catch (err) {
+      console.error("Failed to send email notification:", err);
+    }
 
     return NextResponse.json({ id: submission.id, success: true });
   } catch {

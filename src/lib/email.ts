@@ -1,5 +1,8 @@
 import { Resend } from "resend";
-import { jsPDF } from "jspdf";
+import { PDFDocument, PDFFont, PDFPage, rgb } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
+import { ROBOTO_REGULAR_BASE64 } from "./fonts/roboto-regular";
+import { ROBOTO_BOLD_BASE64 } from "./fonts/roboto-bold";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -30,7 +33,29 @@ interface SubmissionData {
   client_false_beliefs: string;
   ninety_day_success: string;
   anything_else: string;
+  their_word?: string;
+  can_name_clients?: string;
+  rough_client_count?: string;
+  pre_conversation_ask?: string;
+  handover_asset?: string;
+  acknowledged_short_answers?: string[];
 }
+
+const FIELD_KEY_TO_LABEL: Record<string, string> = {
+  q1_business: "What does your business do?",
+  q2_problems: "What specific problems do you solve?",
+  q3_current_clients: "Who do you work with right now?",
+  q4_ideal_client: "Describe your IDEAL client",
+  q5_pricing: "Pricing & offer structure",
+  q8_tried: "What have you tried & why didn't it work?",
+  q9_top_problems: "Top 3 problems your clients come to you with",
+  q10_false_belief: "False beliefs your clients hold",
+  q11_success_90: "Success in 90 days",
+};
+
+const KEY_FOR_LABEL: Record<string, string> = Object.fromEntries(
+  Object.entries(FIELD_KEY_TO_LABEL).map(([k, v]) => [v, k])
+);
 
 const RATINGS = [
   { key: "rating_ideal_client_clarity", label: "Ideal client clarity" },
@@ -45,156 +70,307 @@ const RATINGS = [
   { key: "rating_expert_positioning", label: "Expert positioning" },
 ] as const;
 
-function generatePDF(data: SubmissionData): Buffer {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 20;
-  const contentWidth = pageWidth - margin * 2;
-  let y = 20;
+async function generatePDF(data: SubmissionData): Promise<Buffer> {
+  const pdfDoc = await PDFDocument.create();
+  pdfDoc.registerFontkit(fontkit);
 
-  const checkPage = (needed: number) => {
-    if (y + needed > 270) {
-      doc.addPage();
-      y = 20;
+  const robotoBytes = Buffer.from(ROBOTO_REGULAR_BASE64, "base64");
+  const robotoBoldBytes = Buffer.from(ROBOTO_BOLD_BASE64, "base64");
+  const fontRegular = await pdfDoc.embedFont(robotoBytes, { subset: true });
+  const fontBold = await pdfDoc.embedFont(robotoBoldBytes, { subset: true });
+
+  const PAGE_WIDTH = 595;
+  const PAGE_HEIGHT = 842;
+  const MARGIN = 50;
+  const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
+  const HEADER_HEIGHT = 80;
+
+  const GREEN = rgb(2 / 255, 66 / 255, 40 / 255);
+  const YELLOW = rgb(249 / 255, 236 / 255, 0 / 255);
+  const WHITE = rgb(1, 1, 1);
+  const TEXT = rgb(40 / 255, 40 / 255, 40 / 255);
+  const GREY = rgb(220 / 255, 220 / 255, 220 / 255);
+  const SUBTLE = rgb(200 / 255, 200 / 255, 200 / 255);
+
+  let page: PDFPage = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+  // y is tracked from top of page (top = 0); convert at draw time
+  let y = 0;
+
+  // pdf-lib uses bottom-left origin. Convert "y from top" to pdf-lib y.
+  const fromTop = (yt: number) => PAGE_HEIGHT - yt;
+
+  const ensurePage = (needed: number) => {
+    if (y + needed > PAGE_HEIGHT - MARGIN) {
+      page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+      y = MARGIN;
     }
   };
 
-  const addSectionHeader = (title: string) => {
-    checkPage(20);
-    doc.setFillColor(2, 66, 40); // #024228
-    doc.rect(margin, y, contentWidth, 10, "F");
-    doc.setTextColor(249, 236, 0); // #F9EC00
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text(title, margin + 4, y + 7);
-    doc.setTextColor(0, 0, 0);
-    y += 16;
+  const wrap = (
+    text: string,
+    maxWidth: number,
+    font: PDFFont,
+    size: number
+  ): string[] => {
+    const paragraphs = text.split(/\n/);
+    const lines: string[] = [];
+    for (const paragraph of paragraphs) {
+      if (!paragraph.trim()) {
+        lines.push("");
+        continue;
+      }
+      const words = paragraph.split(/\s+/);
+      let current = "";
+      for (const word of words) {
+        const next = current ? `${current} ${word}` : word;
+        if (font.widthOfTextAtSize(next, size) > maxWidth && current) {
+          lines.push(current);
+          current = word;
+        } else {
+          current = next;
+        }
+      }
+      if (current) lines.push(current);
+    }
+    return lines;
   };
 
-  const addField = (label: string, value: string) => {
-    checkPage(10);
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(2, 66, 40);
-    doc.text(label, margin, y);
-    y += 5;
-
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(40, 40, 40);
-    doc.setFontSize(9);
-    const lines = doc.splitTextToSize(value || "—", contentWidth);
-    checkPage(lines.length * 4.5);
-    doc.text(lines, margin, y);
-    y += lines.length * 4.5 + 4;
-  };
-
-  // Header
-  doc.setFillColor(2, 66, 40);
-  doc.rect(0, 0, pageWidth, 30, "F");
-  doc.setTextColor(249, 236, 0);
-  doc.setFontSize(18);
-  doc.setFont("helvetica", "bold");
-  doc.text("Client Onboarding", margin, 14);
-  doc.setFontSize(11);
-  doc.setTextColor(255, 255, 255);
-  doc.text(data.name, margin, 23);
-  doc.setFontSize(9);
-  doc.setTextColor(200, 200, 200);
+  // ─── Header banner ──────────────────────────────────────
+  page.drawRectangle({
+    x: 0,
+    y: fromTop(HEADER_HEIGHT),
+    width: PAGE_WIDTH,
+    height: HEADER_HEIGHT,
+    color: GREEN,
+  });
+  page.drawText("Client Onboarding", {
+    x: MARGIN,
+    y: fromTop(34),
+    size: 22,
+    font: fontBold,
+    color: YELLOW,
+  });
+  page.drawText(data.name, {
+    x: MARGIN,
+    y: fromTop(54),
+    size: 13,
+    font: fontBold,
+    color: WHITE,
+  });
   const dateStr = new Date(data.created_at).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
-  doc.text(`${data.email}  |  ${dateStr}`, margin, 28);
-  y = 40;
+  page.drawText(`${data.email}  |  ${dateStr}`, {
+    x: MARGIN,
+    y: fromTop(70),
+    size: 9,
+    font: fontRegular,
+    color: SUBTLE,
+  });
 
-  // Section 1
-  addSectionHeader("About You & Your Business");
-  addField("What does your business do?", data.business_description);
-  addField("What specific problems do you solve?", data.problems_solved);
-  addField("Who do you work with right now?", data.current_clients);
-  addField("Describe your IDEAL client", data.ideal_client);
-  addField("Pricing & offer structure", data.pricing_structure);
+  y = HEADER_HEIGHT + 25;
 
-  // Section 2 - Ratings
-  addSectionHeader("Self Assessment (1-5)");
-  checkPage(60);
+  const acknowledged = new Set(data.acknowledged_short_answers ?? []);
 
+  const drawSectionHeader = (title: string) => {
+    ensurePage(40);
+    const headerH = 22;
+    page.drawRectangle({
+      x: MARGIN,
+      y: fromTop(y + headerH),
+      width: CONTENT_WIDTH,
+      height: headerH,
+      color: GREEN,
+    });
+    page.drawText(title, {
+      x: MARGIN + 10,
+      y: fromTop(y + 15),
+      size: 12,
+      font: fontBold,
+      color: YELLOW,
+    });
+    y += headerH + 12;
+  };
+
+  const drawField = (label: string, value?: string) => {
+    ensurePage(30);
+    const fieldKey = KEY_FOR_LABEL[label];
+    const isAcknowledged = fieldKey ? acknowledged.has(fieldKey) : false;
+
+    const labelSize = 10;
+    page.drawText(label, {
+      x: MARGIN,
+      y: fromTop(y + labelSize),
+      size: labelSize,
+      font: fontBold,
+      color: GREEN,
+    });
+
+    if (isAcknowledged) {
+      const labelW = fontBold.widthOfTextAtSize(label, labelSize);
+      const badgeText = "User noted nothing further to add";
+      const badgeSize = 8;
+      const badgePadX = 4;
+      const badgePadY = 2;
+      const badgeTextW = fontRegular.widthOfTextAtSize(badgeText, badgeSize);
+      const badgeW = badgeTextW + badgePadX * 2;
+      const badgeH = badgeSize + badgePadY * 2;
+      const badgeX = MARGIN + labelW + 6;
+      const badgeTopY = y + labelSize - badgeH + 1;
+
+      page.drawRectangle({
+        x: badgeX,
+        y: fromTop(badgeTopY + badgeH),
+        width: badgeW,
+        height: badgeH,
+        color: YELLOW,
+      });
+      page.drawText(badgeText, {
+        x: badgeX + badgePadX,
+        y: fromTop(badgeTopY + badgeH - badgePadY - 1),
+        size: badgeSize,
+        font: fontRegular,
+        color: GREEN,
+      });
+    }
+
+    y += 16;
+
+    const valueSize = 10;
+    const lineHeight = 14;
+    const lines = wrap(value || "-", CONTENT_WIDTH, fontRegular, valueSize);
+    for (const line of lines) {
+      ensurePage(lineHeight + 4);
+      page.drawText(line, {
+        x: MARGIN,
+        y: fromTop(y + valueSize),
+        size: valueSize,
+        font: fontRegular,
+        color: TEXT,
+      });
+      y += lineHeight;
+    }
+    y += 8;
+  };
+
+  // ─── Sections ───────────────────────────────────────────
+  drawSectionHeader("Scoping");
+  drawField("Their word for the people they work with", data.their_word);
+  drawField("Can talk about them by name?", data.can_name_clients);
+  drawField("Roughly how many worked with", data.rough_client_count);
+
+  drawSectionHeader("About You & Your Business");
+  drawField("What does your business do?", data.business_description);
+  drawField("What specific problems do you solve?", data.problems_solved);
+  drawField("Who do you work with right now?", data.current_clients);
+  drawField("Describe your IDEAL client", data.ideal_client);
+  drawField("Pricing & offer structure", data.pricing_structure);
+  drawField(
+    "What they ask for before a first conversation",
+    data.pre_conversation_ask
+  );
+
+  drawSectionHeader("Self Assessment (1-5)");
+  const ratingRowH = 18;
   for (const rating of RATINGS) {
+    ensurePage(ratingRowH + 4);
     const val = data[rating.key as keyof SubmissionData] as number;
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(40, 40, 40);
-    doc.text(rating.label, margin, y);
+    const rowSize = 10;
+    page.drawText(rating.label, {
+      x: MARGIN,
+      y: fromTop(y + rowSize),
+      size: rowSize,
+      font: fontRegular,
+      color: TEXT,
+    });
 
-    // Draw rating bar
-    const barX = margin + 90;
-    const barWidth = 50;
-    const filledWidth = (val / 5) * barWidth;
+    const barX = MARGIN + 230;
+    const barW = 130;
+    const barH = 8;
+    const filled = (val / 5) * barW;
+    const barTopY = y + 4;
+    page.drawRectangle({
+      x: barX,
+      y: fromTop(barTopY + barH),
+      width: barW,
+      height: barH,
+      color: GREY,
+    });
+    page.drawRectangle({
+      x: barX,
+      y: fromTop(barTopY + barH),
+      width: filled,
+      height: barH,
+      color: YELLOW,
+    });
 
-    doc.setFillColor(220, 220, 220);
-    doc.rect(barX, y - 3, barWidth, 4, "F");
-    doc.setFillColor(249, 236, 0);
-    doc.rect(barX, y - 3, filledWidth, 4, "F");
-
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(2, 66, 40);
-    doc.text(`${val}/5`, barX + barWidth + 4, y);
-    y += 7;
-    checkPage(7);
+    page.drawText(`${val}/5`, {
+      x: barX + barW + 10,
+      y: fromTop(y + rowSize),
+      size: rowSize,
+      font: fontBold,
+      color: GREEN,
+    });
+    y += ratingRowH;
   }
-  y += 4;
+  y += 6;
 
-  // Section 3
-  addSectionHeader("Pain Points");
+  drawSectionHeader("Pain Points");
   const costText =
     data.biggest_cost === "Something else"
-      ? `Something else: ${data.biggest_cost_other || "—"}`
+      ? `Something else: ${data.biggest_cost_other || "-"}`
       : data.biggest_cost;
-  addField("Biggest thing costing you money", costText);
-  addField("What have you tried & why didn't it work?", data.attempted_fixes);
+  drawField("Biggest thing costing you money", costText);
+  drawField(
+    "What have you tried & why didn't it work?",
+    data.attempted_fixes
+  );
 
-  // Section 4
-  addSectionHeader("Your Prospects' World");
-  addField("Top 3 problems your clients come to you with", data.top_3_client_problems);
-  addField("False beliefs your clients hold", data.client_false_beliefs);
+  drawSectionHeader("Your Prospects' World");
+  drawField(
+    "Top 3 problems your clients come to you with",
+    data.top_3_client_problems
+  );
+  drawField("False beliefs your clients hold", data.client_false_beliefs);
 
-  // Section 5
-  addSectionHeader("Where You Want To Be");
-  addField("Success in 90 days", data.ninety_day_success);
-  addField("Anything else", data.anything_else);
+  drawSectionHeader("Where You Want To Be");
+  drawField("Success in 90 days", data.ninety_day_success);
+  drawField("Something they could hand somebody", data.handover_asset);
+  drawField("Anything else", data.anything_else);
 
-  return Buffer.from(doc.output("arraybuffer"));
+  const pdfBytes = await pdfDoc.save();
+  return Buffer.from(pdfBytes);
 }
 
 export async function sendSubmissionEmail(data: SubmissionData) {
   const notificationEmail = process.env.NOTIFICATION_EMAIL;
   if (!notificationEmail || !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "placeholder") {
-    console.log("Email not configured — skipping notification");
+    console.log("Email not configured - skipping notification");
     return;
   }
 
-  const pdfBuffer = generatePDF(data);
+  const pdfBuffer = await generatePDF(data);
   const fileName = `Onboarding_${data.name.replace(/[^a-zA-Z0-9]/g, "_")}_${new Date(data.created_at).toISOString().slice(0, 10)}.pdf`;
 
-  // Calculate average rating
   const ratings = RATINGS.map((r) => data[r.key as keyof SubmissionData] as number);
   const avgRating = (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1);
 
-  await resend.emails.send({
-    from: "Onboarding Form <onboarding@resend.dev>",
+  const result = await resend.emails.send({
+    from: "Onboarding Form <onboarding@resendupdates.darrengibb.com>",
     to: notificationEmail,
     subject: `New Client Onboarding: ${data.name}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #024228; padding: 20px; border-radius: 8px 8px 0 0;">
           <h1 style="color: #F9EC00; margin: 0; font-size: 20px;">New Client Onboarding</h1>
-          <p style="color: #ffffff; margin: 5px 0 0 0;">${data.name} &mdash; ${data.email}</p>
+          <p style="color: #ffffff; margin: 5px 0 0 0;">${data.name} - ${data.email}</p>
         </div>
         <div style="background: #f9f9f9; padding: 20px; border-radius: 0 0 8px 8px;">
           <h3 style="color: #024228; margin-top: 0;">Quick Summary</h3>
           <p><strong>Business:</strong> ${data.business_description.substring(0, 200)}${data.business_description.length > 200 ? "..." : ""}</p>
-          <p><strong>Biggest Pain:</strong> ${data.biggest_cost}${data.biggest_cost === "Something else" ? ` — ${data.biggest_cost_other}` : ""}</p>
+          <p><strong>Biggest Pain:</strong> ${data.biggest_cost}${data.biggest_cost === "Something else" ? ` - ${data.biggest_cost_other}` : ""}</p>
           <p><strong>Avg Self-Rating:</strong> ${avgRating}/5</p>
           <p><strong>90-Day Goal:</strong> ${data.ninety_day_success.substring(0, 200)}${data.ninety_day_success.length > 200 ? "..." : ""}</p>
           <hr style="border: none; border-top: 1px solid #ddd; margin: 16px 0;" />
@@ -209,4 +385,10 @@ export async function sendSubmissionEmail(data: SubmissionData) {
       },
     ],
   });
+
+  if (result.error) {
+    console.error("Resend rejected send:", JSON.stringify(result.error));
+    throw new Error(`Resend error: ${result.error.message ?? JSON.stringify(result.error)}`);
+  }
+  console.log("Resend send ok:", JSON.stringify(result.data));
 }

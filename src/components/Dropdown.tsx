@@ -4,19 +4,30 @@ interface DropdownProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  helper?: string;
   options: string[];
+  required?: boolean;
+  error?: string;
+  fieldId?: string;
 }
 
-export default function Dropdown({ label, value, onChange, options }: DropdownProps) {
+export default function Dropdown({ label, value, onChange, helper, options, required, error, fieldId }: DropdownProps) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-brand-white mb-1.5">
+    <div data-field-id={fieldId}>
+      <label className="block text-base font-medium text-brand-white mb-2">
         {label}
+        {required && <span className="text-brand-yellow ml-1">*</span>}
       </label>
+      {helper && (
+        <p className="text-sm text-brand-muted mb-2.5 leading-relaxed">{helper}</p>
+      )}
       <select
+        id={fieldId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 py-3 bg-brand-black border border-brand-green/40 rounded-lg text-brand-white hover:border-brand-green transition-colors duration-200 cursor-pointer appearance-none"
+        className={`w-full px-4 py-4 text-base bg-brand-black border rounded-lg text-brand-white hover:border-brand-green transition-colors duration-200 cursor-pointer appearance-none ${
+          error ? "border-red-500" : "border-brand-green/40"
+        }`}
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0a0a0' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
           backgroundRepeat: "no-repeat",
@@ -32,6 +43,7 @@ export default function Dropdown({ label, value, onChange, options }: DropdownPr
           </option>
         ))}
       </select>
+      {error && <p className="mt-1.5 text-sm text-red-400">{error}</p>}
     </div>
   );
 }
