@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Button from "@/components/Button";
+import { submissionV2Schema } from "@/lib/v2/definitions";
+import { buildSections, ratingRows } from "@/lib/v2/sections";
 
 const SLIDER_LABELS = [
   "I know exactly who my ideal client is",
@@ -43,6 +45,15 @@ interface Submission {
   ninety_day_success: string;
   anything_else: string;
   created_at: string;
+  form_version?: string;
+  answers?: unknown;
+  session_brief?: string | null;
+  brief_status?: string | null;
+  linkedin_status?: string | null;
+  email_sent_at?: string | null;
+  email_error?: string | null;
+  email_attempts?: number | null;
+  alert_sent_at?: string | null;
 }
 
 export default function AdminPage() {
@@ -450,7 +461,8 @@ export default function AdminPage() {
                   </button>
 
                   {/* Expanded detail */}
-                  {isExpanded && (
+                  {isExpanded && sub.form_version === "v2" && <V2Detail sub={sub} />}
+                  {isExpanded && sub.form_version !== "v2" && (
                     <div className="border-t border-brand-green/20 px-5 py-5 space-y-5 bg-brand-black/50">
                       <div className="flex justify-end">
                         <Button
@@ -544,6 +556,58 @@ function DetailItem({ label, value }: { label: string; value: string }) {
       <p className="text-sm text-brand-white whitespace-pre-wrap">
         {value || "Not answered"}
       </p>
+    </div>
+  );
+}
+
+function V2Detail({ sub }: { sub: Submission }) {
+  const parsed = submissionV2Schema.safeParse(sub.answers);
+  return (
+    <div className="border-t border-brand-green/20 px-5 py-5 space-y-5 bg-brand-black/50">
+      <DetailSection title="Status">
+        <DetailItem
+          label="Email"
+          value={
+            sub.email_sent_at
+              ? `Sent ${new Date(sub.email_sent_at).toLocaleString("en-GB")}`
+              : `${(sub.email_attempts ?? 0) >= 5 ? "GAVE UP after 5 attempts" : "NOT SENT yet"}${
+                  sub.alert_sent_at ? " (alert emailed)" : ""
+                } (attempts: ${sub.email_attempts ?? 0})${sub.email_error ? `. Last error: ${sub.email_error}` : ""}`
+          }
+        />
+        <DetailItem label="LinkedIn pull" value={sub.linkedin_status ?? "not run yet"} />
+        <DetailItem label="Session 1 brief" value={sub.brief_status ?? "not written yet"} />
+      </DetailSection>
+      {sub.session_brief && (
+        <DetailSection title="Session 1 brief (AI-written, check before use)">
+          <p className="text-sm text-brand-white whitespace-pre-wrap">{sub.session_brief}</p>
+        </DetailSection>
+      )}
+      {!parsed.success ? (
+        <DetailSection title="Raw answers (could not be read in the v2 format)">
+          <pre className="text-xs text-brand-white whitespace-pre-wrap break-words">{JSON.stringify(sub.answers, null, 2)}</pre>
+        </DetailSection>
+      ) : (
+        <>
+          {buildSections(parsed.data).map((section) => (
+            <DetailSection key={section.title} title={section.title}>
+              {section.fields.map((f) => (
+                <DetailItem key={f.label} label={f.label} value={f.value} />
+              ))}
+            </DetailSection>
+          ))}
+          <DetailSection title="Q7 Ratings">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {ratingRows(parsed.data).map((r) => (
+                <div key={r.label} className="flex items-start gap-2 text-sm">
+                  <span className="text-brand-yellow font-bold min-w-[2ch]">{r.value}/5</span>
+                  <span className="text-brand-muted text-xs">{r.label}</span>
+                </div>
+              ))}
+            </div>
+          </DetailSection>
+        </>
+      )}
     </div>
   );
 }
