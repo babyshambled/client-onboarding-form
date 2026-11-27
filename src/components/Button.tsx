@@ -18,15 +18,15 @@ export default function Button({
   loading = false,
 }: ButtonProps) {
   const base =
-    "px-7 py-3.5 rounded-lg font-semibold text-base transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer";
+    "min-h-12 px-7 py-3 rounded-full font-semibold text-base tracking-[0.01em] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer";
 
   const variants = {
     primary:
-      "bg-brand-yellow text-brand-black hover:bg-brand-yellow-hover active:scale-[0.98]",
+      "bg-green text-surface shadow-[0_1px_2px_rgba(2,66,40,0.25)] hover:bg-green-deep active:scale-[0.98]",
     secondary:
-      "bg-transparent border border-brand-green text-brand-white hover:bg-brand-green/20 active:scale-[0.98]",
+      "bg-transparent border border-line-strong text-ink hover:border-ink hover:bg-surface active:scale-[0.98]",
     ghost:
-      "bg-transparent text-brand-muted hover:text-brand-white",
+      "bg-transparent text-ink-soft hover:text-ink",
   };
 
   return (

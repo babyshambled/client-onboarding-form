@@ -29,15 +29,15 @@ export default function NumberInput({
   compact,
 }: NumberInputProps) {
   return (
-    <div data-field-id={fieldId} className={compact ? "flex items-center justify-between gap-3" : ""}>
+    <div data-field-id={fieldId} className={compact ? "flex items-center justify-between gap-4" : ""}>
       <label
         htmlFor={fieldId}
-        className={`block text-base font-medium text-brand-white ${compact ? "flex-1" : "mb-2"}`}
+        className={compact ? "flex-1 text-base leading-snug text-ink" : "q-label"}
       >
         {label}
-        {required && <span className="text-brand-yellow ml-1">*</span>}
+        {required && <span className="q-req">*</span>}
       </label>
-      {helper && !compact && <p className="text-sm text-brand-muted mb-2.5 leading-relaxed">{helper}</p>}
+      {helper && !compact && <p className="q-helper">{helper}</p>}
       <input
         id={fieldId}
         type="number"
@@ -47,11 +47,9 @@ export default function NumberInput({
         step={step}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`${compact ? "w-24" : "w-40"} px-4 py-3 text-base bg-brand-black border rounded-lg text-brand-white transition-colors duration-200 ${
-          error ? "border-red-500" : "border-brand-green/40 hover:border-brand-green"
-        }`}
+        className={`field tabular-nums ${compact ? "!w-24 shrink-0 text-center !px-2" : "!w-40"} ${error ? "field-error" : ""}`}
       />
-      {error && <p className="mt-1.5 text-sm text-red-400">{error}</p>}
+      {error && <p className="q-error">{error}</p>}
     </div>
   );
 }

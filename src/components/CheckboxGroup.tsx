@@ -28,34 +28,34 @@ export default function CheckboxGroup({
   };
   return (
     <fieldset data-field-id={fieldId}>
-      <legend className="block text-base font-medium text-brand-white mb-2">
+      <legend className="q-label">
         {label}
-        {required && <span className="text-brand-yellow ml-1">*</span>}
+        {required && <span className="q-req">*</span>}
       </legend>
-      {helper && <p className="text-sm text-brand-muted mb-2.5 leading-relaxed">{helper}</p>}
-      {example && <p className="text-sm text-brand-muted/80 italic mb-2.5 leading-relaxed">{example}</p>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      {helper && <p className="q-helper">{helper}</p>}
+      {example && <p className="q-example">{example}</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {options.map((opt) => {
           const checked = values.includes(opt);
           return (
             <label
               key={opt}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition-colors ${
-                checked ? "border-brand-yellow bg-brand-green/20" : "border-brand-green/40 hover:border-brand-green"
+              className={`flex items-center gap-3 px-4 py-3.5 rounded-[10px] border cursor-pointer transition-colors ${
+                checked ? "border-green bg-green-tint" : "border-line-strong bg-surface hover:border-ink-soft"
               }`}
             >
               <input
                 type="checkbox"
                 checked={checked}
                 onChange={() => toggle(opt)}
-                className="w-5 h-5 accent-brand-yellow shrink-0"
+                className="w-5 h-5 shrink-0"
               />
-              <span className="text-brand-white text-base">{opt}</span>
+              <span className="text-ink text-base leading-snug">{opt}</span>
             </label>
           );
         })}
       </div>
-      {error && <p className="mt-1.5 text-sm text-red-400">{error}</p>}
+      {error && <p className="q-error">{error}</p>}
     </fieldset>
   );
 }
