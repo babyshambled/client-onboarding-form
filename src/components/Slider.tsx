@@ -18,10 +18,10 @@ export default function Slider({
   const percentage = ((value - min) / (max - min)) * 100;
 
   return (
-    <div className="py-3">
-      <div className="flex items-start justify-between mb-3 gap-3">
-        <span className="text-base text-brand-white leading-relaxed flex-1">{label}</span>
-        <span className="text-2xl font-bold text-brand-yellow tabular-nums min-w-[2ch] text-right">
+    <div className="py-5 border-b border-line last:border-b-0">
+      <div className="flex items-start justify-between mb-4 gap-4">
+        <span className="text-base text-ink leading-relaxed flex-1">{label}</span>
+        <span className="font-serif text-3xl font-medium text-green leading-none tabular-nums min-w-[2ch] text-right">
           {value}
         </span>
       </div>
@@ -34,14 +34,15 @@ export default function Slider({
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
           className="w-full"
+          aria-label={label}
           style={{
-            background: `linear-gradient(to right, #F9EC00 0%, #F9EC00 ${percentage}%, #0B6443 ${percentage}%, #0B6443 100%)`,
+            background: `linear-gradient(to right, #0B6443 0%, #0B6443 ${percentage}%, #E4DDCF ${percentage}%, #E4DDCF 100%)`,
           }}
         />
       </div>
-      <div className="flex justify-between mt-1.5">
-        <span className="text-sm text-brand-muted/70">Struggling</span>
-        <span className="text-sm text-brand-muted/70">Confident</span>
+      <div className="flex justify-between mt-2.5">
+        <span className="text-xs uppercase tracking-[0.12em] text-hint">Struggling</span>
+        <span className="text-xs uppercase tracking-[0.12em] text-hint">Confident</span>
       </div>
     </div>
   );

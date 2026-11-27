@@ -4,16 +4,16 @@ import Link from "next/link";
 
 export default function ThankYou() {
   return (
-    <div className="min-h-screen bg-brand-black flex items-center justify-center px-4">
+    <div className="min-h-screen bg-paper flex items-center justify-center px-5">
       <div className="max-w-md w-full text-center">
         {/* Success icon */}
-        <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-brand-accent/20 flex items-center justify-center">
+        <div className="w-16 h-16 mx-auto mb-8 rounded-full border border-green/30 bg-green-tint flex items-center justify-center">
           <svg
-            className="w-10 h-10 text-brand-yellow"
+            className="w-7 h-7 text-green"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            strokeWidth={2.5}
+            strokeWidth={2}
           >
             <path
               strokeLinecap="round"
@@ -23,17 +23,17 @@ export default function ThankYou() {
           </svg>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-bold text-brand-white mb-4">
+        <h1 className="font-serif text-4xl sm:text-5xl font-medium tracking-[-0.015em] text-ink mb-5 leading-[1.1]">
           You&rsquo;re all set!
         </h1>
-        <p className="text-brand-muted text-base sm:text-lg mb-8 leading-relaxed">
+        <p className="text-ink-soft text-base sm:text-lg mb-10 leading-relaxed">
           Thank you for completing the onboarding form. I&rsquo;ll review your
           answers and be in touch soon.
         </p>
 
         <Link
           href="/"
-          className="inline-block px-6 py-3 bg-brand-green text-brand-white rounded-lg font-medium text-sm hover:bg-brand-accent transition-colors"
+          className="inline-block px-7 py-3 border border-line-strong text-ink rounded-full font-semibold text-sm hover:border-ink hover:bg-surface transition-colors"
         >
           Back to Home
         </Link>

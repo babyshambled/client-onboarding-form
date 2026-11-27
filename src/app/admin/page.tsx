@@ -342,9 +342,9 @@ export default function AdminPage() {
   // Password gate
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-brand-black flex items-center justify-center px-4">
+      <div className="min-h-screen bg-paper flex items-center justify-center px-4">
         <div className="max-w-sm w-full">
-          <h1 className="text-2xl font-bold text-brand-white mb-6 text-center">
+          <h1 className="text-2xl font-bold text-ink mb-6 text-center">
             Admin Access
           </h1>
           <div className="space-y-3">
@@ -358,7 +358,7 @@ export default function AdminPage() {
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               placeholder="Email"
               autoComplete="username"
-              className="w-full px-4 py-3 bg-brand-black border border-brand-green/40 rounded-lg text-brand-white placeholder:text-brand-muted/50 focus:border-brand-yellow"
+              className="w-full px-4 py-3 bg-paper border border-line-strong rounded-lg text-ink placeholder:text-hint focus:border-green"
             />
             <input
               type="password"
@@ -370,7 +370,7 @@ export default function AdminPage() {
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               placeholder="Password"
               autoComplete="current-password"
-              className="w-full px-4 py-3 bg-brand-black border border-brand-green/40 rounded-lg text-brand-white placeholder:text-brand-muted/50 focus:border-brand-yellow"
+              className="w-full px-4 py-3 bg-paper border border-line-strong rounded-lg text-ink placeholder:text-hint focus:border-green"
             />
             {passwordError && (
               <p className="text-xs text-red-400">{passwordError}</p>
@@ -383,14 +383,14 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-black">
+    <div className="min-h-screen bg-paper">
       {/* Header */}
-      <header className="border-b border-brand-green/20 py-4 px-4">
+      <header className="border-b border-line py-4 px-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-brand-white">
+          <h1 className="text-lg font-semibold text-ink">
             Submissions Dashboard
           </h1>
-          <span className="text-xs text-brand-muted">
+          <span className="text-xs text-ink-soft">
             {submissions.length} submission{submissions.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -398,9 +398,9 @@ export default function AdminPage() {
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         {loading ? (
-          <div className="text-center py-20 text-brand-muted">Loading...</div>
+          <div className="text-center py-20 text-ink-soft">Loading...</div>
         ) : submissions.length === 0 ? (
-          <div className="text-center py-20 text-brand-muted">
+          <div className="text-center py-20 text-ink-soft">
             No submissions yet.
           </div>
         ) : (
@@ -416,35 +416,35 @@ export default function AdminPage() {
               return (
                 <div
                   key={sub.id}
-                  className="border border-brand-green/30 rounded-lg overflow-hidden"
+                  className="border border-line-strong rounded-lg overflow-hidden"
                 >
                   {/* Summary row */}
                   <button
                     onClick={() =>
                       setExpandedId(isExpanded ? null : sub.id)
                     }
-                    className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-brand-green/10 transition-colors cursor-pointer"
+                    className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-green-tint transition-colors cursor-pointer"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3">
-                        <span className="font-semibold text-brand-white truncate">
+                        <span className="font-semibold text-ink truncate">
                           {sub.name}
                         </span>
-                        <span className="text-xs text-brand-muted hidden sm:block">
+                        <span className="text-xs text-ink-soft hidden sm:block">
                           {sub.email}
                         </span>
                       </div>
-                      <div className="text-xs text-brand-muted mt-0.5">
+                      <div className="text-xs text-ink-soft mt-0.5">
                         {date}
                         {sub.biggest_cost && (
-                          <span className="ml-3 text-brand-yellow">
+                          <span className="ml-3 text-green">
                             Pain: {sub.biggest_cost}
                           </span>
                         )}
                       </div>
                     </div>
                     <svg
-                      className={`w-4 h-4 text-brand-muted transition-transform ${
+                      className={`w-4 h-4 text-ink-soft transition-transform ${
                         isExpanded ? "rotate-180" : ""
                       }`}
                       fill="none"
@@ -463,7 +463,7 @@ export default function AdminPage() {
                   {/* Expanded detail */}
                   {isExpanded && sub.form_version === "v2" && <V2Detail sub={sub} />}
                   {isExpanded && sub.form_version !== "v2" && (
-                    <div className="border-t border-brand-green/20 px-5 py-5 space-y-5 bg-brand-black/50">
+                    <div className="border-t border-line px-5 py-5 space-y-5 bg-paper/50">
                       <div className="flex justify-end">
                         <Button
                           variant="secondary"
@@ -488,10 +488,10 @@ export default function AdminPage() {
                               key={i}
                               className="flex items-start gap-2 text-sm"
                             >
-                              <span className="text-brand-yellow font-bold min-w-[2ch]">
+                              <span className="text-green font-bold min-w-[2ch]">
                                 {val}/5
                               </span>
-                              <span className="text-brand-muted text-xs">
+                              <span className="text-ink-soft text-xs">
                                 {SLIDER_LABELS[i]}
                               </span>
                             </div>
@@ -541,7 +541,7 @@ function DetailSection({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold text-brand-yellow mb-3 uppercase tracking-wider">
+      <h3 className="text-sm font-semibold text-green mb-3 uppercase tracking-wider">
         {title}
       </h3>
       <div className="space-y-3">{children}</div>
@@ -552,8 +552,8 @@ function DetailSection({
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="text-xs text-brand-muted block mb-0.5">{label}</span>
-      <p className="text-sm text-brand-white whitespace-pre-wrap">
+      <span className="text-xs text-ink-soft block mb-0.5">{label}</span>
+      <p className="text-sm text-ink whitespace-pre-wrap">
         {value || "Not answered"}
       </p>
     </div>
@@ -563,7 +563,7 @@ function DetailItem({ label, value }: { label: string; value: string }) {
 function V2Detail({ sub }: { sub: Submission }) {
   const parsed = submissionV2Schema.safeParse(sub.answers);
   return (
-    <div className="border-t border-brand-green/20 px-5 py-5 space-y-5 bg-brand-black/50">
+    <div className="border-t border-line px-5 py-5 space-y-5 bg-paper/50">
       <DetailSection title="Status">
         <DetailItem
           label="Email"
@@ -580,12 +580,12 @@ function V2Detail({ sub }: { sub: Submission }) {
       </DetailSection>
       {sub.session_brief && (
         <DetailSection title="Session 1 brief (AI-written, check before use)">
-          <p className="text-sm text-brand-white whitespace-pre-wrap">{sub.session_brief}</p>
+          <p className="text-sm text-ink whitespace-pre-wrap">{sub.session_brief}</p>
         </DetailSection>
       )}
       {!parsed.success ? (
         <DetailSection title="Raw answers (could not be read in the v2 format)">
-          <pre className="text-xs text-brand-white whitespace-pre-wrap break-words">{JSON.stringify(sub.answers, null, 2)}</pre>
+          <pre className="text-xs text-ink whitespace-pre-wrap break-words">{JSON.stringify(sub.answers, null, 2)}</pre>
         </DetailSection>
       ) : (
         <>
@@ -600,8 +600,8 @@ function V2Detail({ sub }: { sub: Submission }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {ratingRows(parsed.data).map((r) => (
                 <div key={r.label} className="flex items-start gap-2 text-sm">
-                  <span className="text-brand-yellow font-bold min-w-[2ch]">{r.value}/5</span>
-                  <span className="text-brand-muted text-xs">{r.label}</span>
+                  <span className="text-green font-bold min-w-[2ch]">{r.value}/5</span>
+                  <span className="text-ink-soft text-xs">{r.label}</span>
                 </div>
               ))}
             </div>

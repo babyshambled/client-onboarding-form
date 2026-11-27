@@ -27,15 +27,15 @@ export default function TextArea({
 }: TextAreaProps) {
   return (
     <div data-field-id={fieldId}>
-      <label htmlFor={fieldId} className="block text-base font-medium text-brand-white mb-2">
+      <label htmlFor={fieldId} className="q-label">
         {label}
-        {required && <span className="text-brand-yellow ml-1">*</span>}
+        {required && <span className="q-req">*</span>}
       </label>
       {helper && (
-        <p className="text-sm text-brand-muted mb-2.5 leading-relaxed">{helper}</p>
+        <p className="q-helper">{helper}</p>
       )}
       {example && (
-        <p className="text-sm text-brand-muted/80 italic mb-2.5 leading-relaxed">{example}</p>
+        <p className="q-example">{example}</p>
       )}
       <textarea
         id={fieldId}
@@ -45,17 +45,15 @@ export default function TextArea({
         maxLength={maxLength}
         aria-invalid={error ? true : undefined}
         rows={4}
-        className={`w-full px-4 py-4 text-base bg-brand-black border rounded-lg text-brand-white placeholder:text-brand-muted/50 resize-y min-h-[120px] leading-relaxed transition-colors duration-200 ${
-          error ? "border-red-500" : "border-brand-green/40 hover:border-brand-green"
-        }`}
+        className={`field block resize-y min-h-[132px] !leading-relaxed ${error ? "field-error" : ""}`}
       />
-      <div className="flex justify-between items-center mt-1.5">
+      <div className="flex justify-between items-start gap-4 mt-2">
         {error ? (
-          <p className="text-sm text-red-400">{error}</p>
+          <p className="q-error !mt-0">{error}</p>
         ) : (
           <span />
         )}
-        <span className="text-xs text-brand-muted/50">
+        <span className="text-xs text-hint tabular-nums shrink-0">
           {value.length}/{maxLength}
         </span>
       </div>

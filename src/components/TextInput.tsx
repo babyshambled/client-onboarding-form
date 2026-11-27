@@ -29,15 +29,15 @@ export default function TextInput({
 }: TextInputProps) {
   return (
     <div data-field-id={fieldId}>
-      <label htmlFor={fieldId} className="block text-base font-medium text-brand-white mb-2">
+      <label htmlFor={fieldId} className="q-label">
         {label}
-        {required && <span className="text-brand-yellow ml-1">*</span>}
+        {required && <span className="q-req">*</span>}
       </label>
       {helper && (
-        <p className="text-sm text-brand-muted mb-2.5 leading-relaxed">{helper}</p>
+        <p className="q-helper">{helper}</p>
       )}
       {example && (
-        <p className="text-sm text-brand-muted/80 italic mb-2.5 leading-relaxed">{example}</p>
+        <p className="q-example">{example}</p>
       )}
       <input
         id={fieldId}
@@ -47,11 +47,9 @@ export default function TextInput({
         placeholder={placeholder}
         maxLength={maxLength}
         aria-invalid={error ? true : undefined}
-        className={`w-full px-4 py-4 text-base bg-brand-black border rounded-lg text-brand-white placeholder:text-brand-muted/50 transition-colors duration-200 ${
-          error ? "border-red-500" : "border-brand-green/40 hover:border-brand-green"
-        }`}
+        className={`field ${error ? "field-error" : ""}`}
       />
-      {error && <p className="mt-1.5 text-sm text-red-400">{error}</p>}
+      {error && <p className="q-error">{error}</p>}
     </div>
   );
 }

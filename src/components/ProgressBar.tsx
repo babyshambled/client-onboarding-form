@@ -15,62 +15,40 @@ interface ProgressBarProps {
 
 export default function ProgressBar({ currentStep, steps }: ProgressBarProps) {
   const STEPS = steps ?? DEFAULT_STEPS;
+  const current = Math.min(currentStep, STEPS.length - 1);
+  const pad = (n: number) => String(n).padStart(2, "0");
+
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between relative">
-        {/* Connecting line */}
-        <div className="absolute top-3 left-0 right-0 h-[2px] bg-brand-green/30" />
-        <div
-          className="absolute top-3 left-0 h-[2px] bg-brand-yellow transition-all duration-500 ease-out"
-          style={{
-            width: `${((Math.min(currentStep, STEPS.length - 1)) / (STEPS.length - 1)) * 100}%`,
-          }}
-        />
+    <div className="w-full max-w-2xl mx-auto px-5 sm:px-6 pt-8 sm:pt-10 pb-8 sm:pb-10">
+      <div className="flex items-baseline justify-between gap-4 mb-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-green">
+          {STEPS[current]}
+        </p>
+        <p className="font-serif text-sm text-ink-soft tabular-nums" aria-hidden="true">
+          <span className="text-base text-ink">{pad(current + 1)}</span>
+          <span className="mx-1 text-line-strong">/</span>
+          {pad(STEPS.length)}
+        </p>
+      </div>
 
-        {STEPS.map((label, i) => {
-          const isCompleted = i < currentStep;
-          const isCurrent = i === currentStep;
-          const isFuture = i > currentStep;
-
-          return (
-            <div key={label} className="flex flex-col items-center relative z-10">
-              {/* Dot */}
-              <div
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                  isCurrent
-                    ? "bg-brand-yellow border-brand-yellow"
-                    : isCompleted
-                    ? "bg-brand-accent border-brand-accent"
-                    : "bg-brand-black border-brand-muted/40"
-                }`}
-              >
-                {isCompleted && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-                {isCurrent && (
-                  <div className="w-2 h-2 rounded-full bg-brand-black" />
-                )}
-              </div>
-
-              {/* Label */}
-              <span
-                className={`mt-2 text-xs font-medium whitespace-nowrap transition-colors duration-300 ${
-                  isCurrent ? "" : "hidden sm:inline"
-                } ${
-                  isCurrent
-                    ? "text-brand-yellow"
-                    : isCompleted
-                    ? "text-brand-accent"
-                    : "text-brand-muted/60"
-                }`}
-              >
-                {label}
-              </span>
-            </div>
-          );
-        })}
+      {/* One fine segment per step: finished steps in green, the current one in gold, the rest a pale rule. */}
+      <div
+        className="flex gap-1.5"
+        role="progressbar"
+        aria-label="Form progress"
+        aria-valuemin={1}
+        aria-valuemax={STEPS.length}
+        aria-valuenow={current + 1}
+        aria-valuetext={`Step ${current + 1} of ${STEPS.length}: ${STEPS[current]}`}
+      >
+        {STEPS.map((label, i) => (
+          <div
+            key={label}
+            className={`h-[3px] flex-1 rounded-full transition-colors duration-500 ${
+              i < current ? "bg-green" : i === current ? "bg-gold" : "bg-line"
+            }`}
+          />
+        ))}
       </div>
     </div>
   );

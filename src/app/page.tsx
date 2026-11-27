@@ -226,7 +226,7 @@ function locateIssue(path: string[]): { step: number; key: string } {
 }
 
 const inputClass =
-  "w-full px-4 py-3 text-base bg-brand-black border rounded-lg text-brand-white placeholder:text-brand-muted/50 border-brand-green/40 hover:border-brand-green";
+  "field";
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -596,7 +596,7 @@ export default function Home() {
   const renderProfileRows = (list: "example_profiles" | "similar_sellers", max: number, min: number) => (
     <div className="space-y-3">
       {form[list].map((row, i) => (
-        <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-start">
+        <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2.5 items-start">
           <input
             aria-label={`LinkedIn link ${i + 1}`}
             value={row.url}
@@ -615,7 +615,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => update(list, form[list].filter((_, j) => j !== i))}
-              className="px-3 py-3 text-sm text-brand-muted hover:text-brand-white"
+              className="justify-self-start px-1 sm:px-3 py-2 sm:py-3.5 text-sm text-ink-soft underline decoration-line-strong underline-offset-4 hover:text-ink hover:decoration-ink"
               aria-label={`Remove link ${i + 1}`}
             >
               Remove
@@ -629,7 +629,7 @@ export default function Home() {
         <button
           type="button"
           onClick={() => update(list, [...form[list], emptyRow()])}
-          className="text-sm font-semibold text-brand-yellow hover:underline"
+          className="py-1 text-sm font-semibold text-green underline-offset-4 hover:underline hover:text-green-deep"
         >
           + Add another
         </button>
@@ -643,18 +643,20 @@ export default function Home() {
   const serverProblem = missingDetail.some((d) => d.key === "submit" || d.key === "api");
 
   return (
-    <div className="min-h-screen bg-brand-black flex flex-col">
-      <header className="border-b border-brand-green/20 py-4 px-4 sm:px-6">
-        <div className="max-w-3xl mx-auto">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Darren Gibb" className="h-8 sm:h-10 w-auto mb-2" />
-          <h1 className="text-lg font-semibold text-brand-white tracking-tight">Client Onboarding</h1>
+    <div className="min-h-screen bg-paper flex flex-col">
+      <header className="border-b border-line py-5 sm:py-6 px-5 sm:px-6">
+        <div className="max-w-2xl mx-auto flex items-baseline justify-between gap-4">
+          {/* The logo file is drawn in bright yellow for dark backgrounds, so on cream the name is set in type instead. */}
+          <p className="font-serif text-2xl sm:text-[1.75rem] font-medium tracking-[-0.01em] leading-none text-ink">
+            Darren <span className="text-green">Gibb</span>
+          </p>
+          <h1 className="text-[0.6875rem] sm:text-xs font-semibold uppercase tracking-[0.2em] text-ink-soft">Client Onboarding</h1>
         </div>
       </header>
 
       <ProgressBar currentStep={currentStep} steps={STEP_LABELS} />
 
-      <main className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 pb-32">
+      <main className="flex-1 w-full max-w-2xl mx-auto px-5 sm:px-6 pb-40 overflow-x-clip">
         {/* Invisible to people, tempting to bots. Anything typed here makes the server drop the submission. */}
         <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1, overflow: "hidden" }}>
           <label htmlFor="company_url">Company website (leave empty)</label>
@@ -808,33 +810,33 @@ export default function Home() {
         {currentStep === 3 && (
           <FormStep title="Who we're looking for" subtitle="This is what your monthly lead list is built from." direction={direction} stepKey={3}>
             <div data-field-id="example_profiles">
-              <p className="block text-base font-medium text-brand-white mb-2">
+              <p className="q-label">
                 Q10: Paste the LinkedIn links of 3 to 5 people you&rsquo;d love as clients
-                <span className="text-brand-yellow ml-1">*</span>
+                <span className="q-req">*</span>
               </p>
-              <p className="text-sm text-brand-muted mb-2.5 leading-relaxed">
+              <p className="q-helper">
                 Past clients you&rsquo;d clone, or people you&rsquo;ve never spoken to who&rsquo;d be perfect. Add a few words on why for each.
               </p>
-              <p className="text-sm text-brand-muted/80 italic mb-3">
+              <p className="q-example">
                 Example: linkedin.com/in/example-name, &ldquo;past client, perfect fit, did the work&rdquo;.
               </p>
               {renderProfileRows("example_profiles", 5, 3)}
-              {errors.example_profiles && <p className="mt-1.5 text-sm text-red-400">{errors.example_profiles}</p>}
+              {errors.example_profiles && <p className="q-error">{errors.example_profiles}</p>}
             </div>
             <div data-field-id="similar_sellers">
-              <p className="block text-base font-medium text-brand-white mb-2">
+              <p className="q-label">
                 Q10b: Paste the LinkedIn links of 1 to 3 people who sell something like you do (optional)
               </p>
-              <p className="text-sm text-brand-muted mb-3 leading-relaxed">
+              <p className="q-helper">
                 People you rate, or people your clients compare you with. I&rsquo;ll look at how they describe themselves and what their audience responds to.
               </p>
               {renderProfileRows("similar_sellers", 3, 1)}
             </div>
             <fieldset>
-              <legend className="block text-base font-medium text-brand-white mb-2">
-                Q11: Who should I be finding for you?<span className="text-brand-yellow ml-1">*</span>
+              <legend className="q-label">
+                Q11: Who should I be finding for you?<span className="q-req">*</span>
               </legend>
-              <p className="text-sm text-brand-muted/80 italic mb-3">
+              <p className="q-example">
                 Example: Titles: owner, founder, managing director. Size: 2 to 20 staff, no solo freelancers. Where: UK, mainly the North West. Yes: IT services, accountancy. No: retail, hospitality.
               </p>
               <div className="space-y-4">
@@ -861,10 +863,10 @@ export default function Home() {
               fieldId="exclusions"
             />
             <fieldset>
-              <legend className="block text-base font-medium text-brand-white mb-2">
-                Q14: How much time, and how many people?<span className="text-brand-yellow ml-1">*</span>
+              <legend className="q-label">
+                Q14: How much time, and how many people?<span className="q-req">*</span>
               </legend>
-              <p className="text-sm text-brand-muted mb-3 leading-relaxed">
+              <p className="q-helper">
                 Be honest: fifteen you follow up beats fifty you don&rsquo;t. This sets the size of your list. Example: 3 hours a week, about 15 new people a month.
               </p>
               <div className="space-y-3">
@@ -928,7 +930,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => update("other_languages", [...form.other_languages, ""])}
-                    className="text-sm font-semibold text-brand-yellow hover:underline"
+                    className="py-1 text-sm font-semibold text-green underline-offset-4 hover:underline hover:text-green-deep"
                   >
                     + Add another language
                   </button>
@@ -997,10 +999,10 @@ export default function Home() {
               />
             )}
             <fieldset>
-              <legend className="block text-base font-medium text-brand-white mb-2">
-                Q17: Copy and paste 3 real LinkedIn messages you&rsquo;ve sent, exactly as written<span className="text-brand-yellow ml-1">*</span>
+              <legend className="q-label">
+                Q17: Copy and paste 3 real LinkedIn messages you&rsquo;ve sent, exactly as written<span className="q-req">*</span>
               </legend>
-              <p className="text-sm text-brand-muted mb-3 leading-relaxed">In your own language, don&rsquo;t translate. Take names out if you like.</p>
+              <p className="q-helper">In your own language, don&rsquo;t translate. Take names out if you like.</p>
               <div className="space-y-4">
                 <TextArea
                   label="(1) The first message you usually send a new connection"
@@ -1037,10 +1039,10 @@ export default function Home() {
               fieldId="client_results"
             />
             <fieldset>
-              <legend className="block text-base font-medium text-brand-white mb-2">
+              <legend className="q-label">
                 Q20: Of your last 10 clients, roughly how many came from each source?
               </legend>
-              <p className="text-sm text-brand-muted mb-3 leading-relaxed">
+              <p className="q-helper">
                 Rough is fine. If you&rsquo;ve had fewer than 10 clients, count them all. Example: Referral 6, Events 2, LinkedIn message 1, Website 1.
               </p>
               <div className="space-y-3">
@@ -1169,42 +1171,42 @@ export default function Home() {
 
       {missingDetail.length > 0 && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-ink/50 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="missing-fields-title"
           onClick={dismissMissing}
         >
           <div
-            className="bg-brand-black border border-brand-yellow/60 rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-8"
+            className="bg-surface border border-line rounded-2xl shadow-[0_24px_60px_-12px_rgba(27,33,29,0.35)] max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 sm:p-9"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="missing-fields-title" className="text-xl sm:text-2xl font-bold text-brand-yellow mb-3">
+            <h3 id="missing-fields-title" className="font-serif text-2xl sm:text-[1.75rem] font-medium tracking-[-0.01em] text-ink mb-3">
               {serverProblem ? "That didn't go through" : "Please check these"}
             </h3>
             {!serverProblem && (
-              <p className="text-brand-muted text-sm sm:text-base mb-4">
-                Questions marked <span className="text-brand-yellow font-bold">*</span> are required. If a longer answer is short and you
+              <p className="text-ink-soft text-sm sm:text-base leading-relaxed mb-5">
+                Questions marked <span className="text-gold-deep font-bold">*</span> are required. If a longer answer is short and you
                 genuinely have nothing to add, tick the box to continue.
               </p>
             )}
-            <ul className="space-y-2 mb-5 max-h-56 overflow-y-auto pr-1">
+            <ul className="space-y-2.5 mb-6 max-h-56 overflow-y-auto pr-1 border-t border-line pt-4">
               {missingDetail.map((item, i) => (
-                <li key={i} className="text-brand-white text-sm sm:text-base flex gap-2">
-                  <span className="text-brand-yellow shrink-0">•</span>
+                <li key={i} className="text-ink text-sm sm:text-base flex gap-2.5">
+                  <span className="text-gold-deep shrink-0">•</span>
                   <span>{item.label}</span>
                 </li>
               ))}
             </ul>
             {allShort && (
-              <label className="flex items-start gap-3 mb-5 cursor-pointer select-none p-3 rounded-lg border border-brand-green/30 hover:border-brand-green/60">
+              <label className="flex items-start gap-3 mb-6 cursor-pointer select-none p-3.5 rounded-[10px] border border-line-strong bg-paper hover:border-ink-soft">
                 <input
                   type="checkbox"
                   checked={acceptShort}
                   onChange={(e) => setAcceptShort(e.target.checked)}
-                  className="mt-0.5 w-5 h-5 accent-brand-yellow shrink-0"
+                  className="mt-0.5 w-5 h-5 shrink-0"
                 />
-                <span className="text-brand-white text-sm sm:text-base leading-snug">
+                <span className="text-ink text-sm sm:text-base leading-snug">
                   I&rsquo;ve shared everything I can on these. Let me continue.
                 </span>
               </label>
@@ -1214,7 +1216,7 @@ export default function Home() {
                 ref={modalButtonRef}
                 type="button"
                 onClick={dismissMissing}
-                className="px-6 py-3 rounded-lg border border-brand-green text-brand-white font-semibold hover:bg-brand-green/20"
+                className="min-h-12 px-7 py-3 rounded-full border border-line-strong text-ink font-semibold cursor-pointer transition-colors hover:border-ink hover:bg-paper"
               >
                 Take me there
               </button>
@@ -1228,8 +1230,8 @@ export default function Home() {
         </div>
       )}
 
-      <div className="fixed bottom-0 left-0 right-0 bg-brand-black/90 backdrop-blur-md border-t border-brand-green/20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+      <div className="fixed bottom-0 left-0 right-0 bg-paper/90 backdrop-blur-md border-t border-line pb-[env(safe-area-inset-bottom)]">
+        <div className="max-w-2xl mx-auto px-5 sm:px-6 py-3.5 sm:py-4 flex justify-between items-center gap-3">
           <div>
             {currentStep > 0 && (
               <Button variant="secondary" onClick={() => goTo(currentStep - 1)}>
@@ -1237,8 +1239,8 @@ export default function Home() {
               </Button>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-brand-muted hidden sm:block">
+          <div className="flex items-center gap-4">
+            <span className="text-xs uppercase tracking-[0.14em] text-hint hidden sm:block">
               Step {currentStep + 1} of {STEP_LABELS.length}
             </span>
             {currentStep < LAST_STEP ? (
