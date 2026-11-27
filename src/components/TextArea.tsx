@@ -5,6 +5,7 @@ interface TextAreaProps {
   value: string;
   onChange: (value: string) => void;
   helper?: string;
+  example?: string;
   placeholder?: string;
   maxLength?: number;
   required?: boolean;
@@ -17,20 +18,24 @@ export default function TextArea({
   value,
   onChange,
   helper,
+  example,
   placeholder,
-  maxLength = 2000,
+  maxLength = 5000,
   required,
   error,
   fieldId,
 }: TextAreaProps) {
   return (
     <div data-field-id={fieldId}>
-      <label className="block text-base font-medium text-brand-white mb-2">
+      <label htmlFor={fieldId} className="block text-base font-medium text-brand-white mb-2">
         {label}
         {required && <span className="text-brand-yellow ml-1">*</span>}
       </label>
       {helper && (
         <p className="text-sm text-brand-muted mb-2.5 leading-relaxed">{helper}</p>
+      )}
+      {example && (
+        <p className="text-sm text-brand-muted/80 italic mb-2.5 leading-relaxed">{example}</p>
       )}
       <textarea
         id={fieldId}
@@ -38,6 +43,7 @@ export default function TextArea({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         maxLength={maxLength}
+        aria-invalid={error ? true : undefined}
         rows={4}
         className={`w-full px-4 py-4 text-base bg-brand-black border rounded-lg text-brand-white placeholder:text-brand-muted/50 resize-y min-h-[120px] leading-relaxed transition-colors duration-200 ${
           error ? "border-red-500" : "border-brand-green/40 hover:border-brand-green"

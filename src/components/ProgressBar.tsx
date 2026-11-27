@@ -1,6 +1,6 @@
 "use client";
 
-const STEPS = [
+const DEFAULT_STEPS = [
   "Your Business",
   "Self Assessment",
   "Pain Points",
@@ -10,9 +10,11 @@ const STEPS = [
 
 interface ProgressBarProps {
   currentStep: number;
+  steps?: string[];
 }
 
-export default function ProgressBar({ currentStep }: ProgressBarProps) {
+export default function ProgressBar({ currentStep, steps }: ProgressBarProps) {
+  const STEPS = steps ?? DEFAULT_STEPS;
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between relative">
@@ -55,6 +57,8 @@ export default function ProgressBar({ currentStep }: ProgressBarProps) {
               {/* Label */}
               <span
                 className={`mt-2 text-xs font-medium whitespace-nowrap transition-colors duration-300 ${
+                  isCurrent ? "" : "hidden sm:inline"
+                } ${
                   isCurrent
                     ? "text-brand-yellow"
                     : isCompleted

@@ -5,21 +5,25 @@ interface DropdownProps {
   value: string;
   onChange: (value: string) => void;
   helper?: string;
+  example?: string;
   options: string[];
   required?: boolean;
   error?: string;
   fieldId?: string;
 }
 
-export default function Dropdown({ label, value, onChange, helper, options, required, error, fieldId }: DropdownProps) {
+export default function Dropdown({ label, value, onChange, helper, example, options, required, error, fieldId }: DropdownProps) {
   return (
     <div data-field-id={fieldId}>
-      <label className="block text-base font-medium text-brand-white mb-2">
+      <label htmlFor={fieldId} className="block text-base font-medium text-brand-white mb-2">
         {label}
         {required && <span className="text-brand-yellow ml-1">*</span>}
       </label>
       {helper && (
         <p className="text-sm text-brand-muted mb-2.5 leading-relaxed">{helper}</p>
+      )}
+      {example && (
+        <p className="text-sm text-brand-muted/80 italic mb-2.5 leading-relaxed">{example}</p>
       )}
       <select
         id={fieldId}
